@@ -2,7 +2,7 @@ APDS-996 library found on http://www.stm32duino.com/viewtopic.php?f=3&t=2928 pos
 Only works in polling mode (not used interrupt mode)
 
 | Arduino Pin | APDS-9960 Board | Function |
-| --- | --- | --- |
+| :---: | :---: | :---: |
 | 3.3V | VIN | Power |
 | GND | GND | Ground |
 | A4 | SDA | I2C Data |
