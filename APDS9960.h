@@ -284,7 +284,6 @@ public:
     int readGesture();
     
 private:
-	TwoWire & mWire = Wire; // default I2C1 interface
     // Gesture processing
     void resetGestureParameters();
     bool processGestureData();
