@@ -322,9 +322,9 @@ private:
     // Raw I2C Commands
     bool wireWriteByte(uint8_t val);
     bool wireWriteDataByte(uint8_t reg, uint8_t val);
-    bool wireWriteDataBlock(uint8_t reg, uint8_t *val, uint8_t len);
+    bool wireWriteDataBlock(uint8_t reg, uint8_t *val, unsigned int len);
     bool wireReadDataByte(uint8_t reg, uint8_t &val);
-    int wireReadDataBlock(uint8_t reg, uint8_t *val, uint8_t len);
+    int wireReadDataBlock(uint8_t reg, uint8_t *val, unsigned int len);
 
     // Variables
     gesture_data_type gesture_data_;

@@ -1942,7 +1942,7 @@ bool APDS9960::wireWriteDataByte(uint8_t reg, uint8_t val)
  */
 bool APDS9960::wireWriteDataBlock(uint8_t reg, 
                                         uint8_t *val, 
-                                        uint8_t len)
+                                        unsigned int len)
 {
     Wire.beginTransmission(APDS9960_I2C_ADDR);
     Wire.write(reg);
@@ -1989,7 +1989,7 @@ bool APDS9960::wireReadDataByte(uint8_t reg, uint8_t &val)
  */
 int APDS9960::wireReadDataBlock(uint8_t reg, 
                                         uint8_t *val, 
-                                        uint8_t len)
+                                        unsigned int len)
 {
     /* Indicate which register we want to read from */
     if (!wireWriteByte(reg)) {
