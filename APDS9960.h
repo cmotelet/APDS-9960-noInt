@@ -215,7 +215,6 @@ class APDS9960
 {
 public:
 
-    bool init(TwoWire & wire);
     bool init() { return init(Wire); }
     uint8_t getMode();
     uint8_t getID();

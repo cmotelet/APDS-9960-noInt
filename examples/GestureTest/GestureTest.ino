@@ -8,9 +8,6 @@ IMPORTANT: The APDS-9960 can only accept 3.3V!
 
 #include <APDS9960.h>
 
-// alternative usage
-TwoWire tWire(1, I2C_FAST_MODE);
-
 // Global Variables
 APDS9960 apds;
 
@@ -34,7 +31,7 @@ void setup()
   Serial.println();
   
   // Initialize APDS-9960 (configure I2C and initial values)
-  if ( apds.init(tWire) ) // alternative usage: apds.init(tWire)
+  if ( apds.init() )
   {
     Serial.println(F("APDS-9960 initialization complete"));
   } else {

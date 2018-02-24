@@ -6,14 +6,15 @@
  * Inspired from https://github.com/sparkfun/APDS-9960_RGB_and_Gesture_Sensor/tree/master/Libraries
  */
 
+#include <Arduino.h>
+#include <Wire.h>
 #include "APDS9960.h"
 
 // Setup of HW registers
-bool APDS9960::init(TwoWire & wire)
+bool APDS9960::init()
 {
-	mWire =  wire;
     // Initialize I2C
-    mWire.begin();
+    Wire.begin();
 
     // disable all features
     if( !setMode(ALL, OFF) ) {
@@ -1903,9 +1904,9 @@ bool APDS9960::setGestureMode(uint8_t mode)
  */
 bool APDS9960::wireWriteByte(uint8_t val)
 {
-    mWire.beginTransmission(APDS9960_I2C_ADDR);
-    mWire.write(val);
-    if( mWire.endTransmission() != 0 ) {
+    Wire.beginTransmission(APDS9960_I2C_ADDR);
+    Wire.write(val);
+    if( Wire.endTransmission() != 0 ) {
         return false;
     }
 
@@ -1921,10 +1922,10 @@ bool APDS9960::wireWriteByte(uint8_t val)
  */
 bool APDS9960::wireWriteDataByte(uint8_t reg, uint8_t val)
 {
-    mWire.beginTransmission(APDS9960_I2C_ADDR);
-    mWire.write(reg);
-    mWire.write(val);
-    if( mWire.endTransmission() != 0 ) {
+    Wire.beginTransmission(APDS9960_I2C_ADDR);
+    Wire.write(reg);
+    Wire.write(val);
+    if( Wire.endTransmission() != 0 ) {
         return false;
     }
 
@@ -1943,12 +1944,12 @@ bool APDS9960::wireWriteDataBlock(uint8_t reg,
                                         uint8_t *val, 
                                         uint8_t len)
 {
-    mWire.beginTransmission(APDS9960_I2C_ADDR);
-    mWire.write(reg);
+    Wire.beginTransmission(APDS9960_I2C_ADDR);
+    Wire.write(reg);
     for(uint8_t i = 0; i < len; i++) {
-        mWire.beginTransmission(val[i]);
+        Wire.beginTransmission(val[i]);
     }
-    if( mWire.endTransmission() != 0 ) {
+    if( Wire.endTransmission() != 0 ) {
         return false;
     }
 
@@ -1970,9 +1971,9 @@ bool APDS9960::wireReadDataByte(uint8_t reg, uint8_t &val)
     }
 
     /* Read from register */
-    mWire.requestFrom(APDS9960_I2C_ADDR, 1);
-    while (mWire.available()) {
-        val = mWire.read();
+    Wire.requestFrom(APDS9960_I2C_ADDR, 1);
+    while (Wire.available()) {
+        val = Wire.read();
     }
 
     return true;
@@ -1996,13 +1997,13 @@ int APDS9960::wireReadDataBlock(uint8_t reg,
     }
 
     /* Read block data */
-    mWire.requestFrom(APDS9960_I2C_ADDR, len);
+    Wire.requestFrom(APDS9960_I2C_ADDR, len);
     uint8_t i = 0;
-    while (mWire.available()) {
+    while (Wire.available()) {
         if (i >= len) {
             return -1;
         }
-        val[i] = mWire.read();
+        val[i] = Wire.read();
         i++;
     }
 
