@@ -47,14 +47,14 @@ typedef struct gesture_data_type
 #define DELTA_MIN 7
 #define THRESHOLD_MIN 70
 
-#define FLAG_UP       BIT0
-#define FLAG_DOWN     BIT1
-#define FLAG_LEFT     BIT2
-#define FLAG_RIGHT    BIT3
-#define FLAG_FAR      BIT4
-#define FLAG_NEAR     BIT5
-#define FLAG_APPROACH BIT6
-#define FLAG_DEPART   BIT7
+#define FLAG_UP       0x01
+#define FLAG_DOWN     0x02
+#define FLAG_LEFT     0x04
+#define FLAG_RIGHT    0x08
+#define FLAG_FAR      0x10
+#define FLAG_NEAR     0x20
+#define FLAG_APPROACH 0x40
+#define FLAG_DEPART   0x80
 
 /* Error code for returned values */
 #define ERROR                   0xFF
