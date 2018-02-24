@@ -202,14 +202,14 @@ typedef struct gesture_data_type
 #define DEFAULT_GPENTH          38      // Threshold for entering gesture mode
 #define DEFAULT_GEXTH           20      // Threshold for exiting gesture mode    
 #define DEFAULT_GCONF1          0x40    // 4 gesture events for int., 1 for exit
-#define DEFAULT_GGAIN           GGAIN_4X
+#define DEFAULT_GGAIN           GGAIN_1X	// GGAIN_4X not working
 #define DEFAULT_GLDRIVE         LED_DRIVE_100MA
 #define DEFAULT_GWTIME          GWTIME_2_8MS
 #define DEFAULT_GOFFSET         0       // No offset scaling for gesture mode
 #define DEFAULT_GPULSE          0xC9    // 32us, 10 pulses
 #define DEFAULT_GCONF3          0       // All photodiodes active during gesture
 #define DEFAULT_GIEN            0       // Disable gesture interrupts
-
+#define DEFAULT_GLED_BOOST		LED_BOOST_150	// LED_BOOST_300 not working
 /* APDS9960 Class */
 class APDS9960
 {

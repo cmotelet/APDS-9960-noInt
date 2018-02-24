@@ -293,7 +293,7 @@ bool APDS9960::enableGestureSensor(bool interrupts)
     /* Enable gesture mode
        Set ENABLE to 0 (power off)
        Set WTIME to 0xFF
-       Set AUX to LED_BOOST_300
+       Set AUX to GLED_BOOST
        Enable PON, WEN, PEN, GEN in ENABLE 
     */
     resetGestureParameters();
@@ -303,7 +303,7 @@ bool APDS9960::enableGestureSensor(bool interrupts)
     if( !wireWriteDataByte(APDS9960_PPULSE, DEFAULT_GESTURE_PPULSE) ) {
         return false;
     }
-    if( !setLEDBoost(LED_BOOST_300) ) {
+    if( !setLEDBoost(GLED_BOOST) ) {
         return false;
     }
     if( interrupts ) {
