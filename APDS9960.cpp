@@ -784,8 +784,8 @@ void APDS9960::decodeGesture()
 	else if ( gesture_motion_&FLAG_RIGHT ) Serial.print(" RIGHT");
 	else Serial.print(" ---");
 
-	if ( gesture_motion_&FLAG_GO_FAR ) Serial.print(" DEPARTING");
-	else if ( gesture_motion_&FLAG_GO_NEAR ) Serial.print(" APPROACHING");
+	if ( gesture_motion_&FLAG_DEPART ) Serial.print(" DEPARTING");
+	else if ( gesture_motion_&FLAG_APPROACH ) Serial.print(" APPROACHING");
 	else Serial.print(" ---");
 
 	if ( gesture_motion_&FLAG_FAR ) Serial.print(" FAR");
@@ -802,17 +802,17 @@ void APDS9960::decodeGesture()
 		for (uint8_t j = 0; j<gesture_data_.total_records; j++)
 		{
 			uint8_t marker = 0;
-			if ( i<=rec_data[j].u_data && (i+10)>rec_data[j].u_data) marker |= BIT0;
-			if ( i<=rec_data[j].d_data && (i+10)>rec_data[j].d_data) marker |= BIT1;
-			if ( i<=rec_data[j].l_data && (i+10)>rec_data[j].l_data) marker |= BIT2;
-			if ( i<=rec_data[j].r_data && (i+10)>rec_data[j].r_data) marker |= BIT3;
-			if (marker&BIT0) Serial.write('u');
+			if ( i<=rec_data[j].u_data && (i+10)>rec_data[j].u_data) marker |= FLAG_UP;
+			if ( i<=rec_data[j].d_data && (i+10)>rec_data[j].d_data) marker |= FLAG_DOWN;
+			if ( i<=rec_data[j].l_data && (i+10)>rec_data[j].l_data) marker |= FLAG_LEFT;
+			if ( i<=rec_data[j].r_data && (i+10)>rec_data[j].r_data) marker |= FLAG_RIGHT;
+			if (marker&FLAG_UP) Serial.write('u');
 			else Serial.write(' ');
-			if (marker&BIT1) Serial.write('d');
+			if (marker&FLAG_DOWN) Serial.write('d');
 			else Serial.write(' ');
-			if (marker&BIT2) Serial.write('l');
+			if (marker&FLAG_LEFT) Serial.write('l');
 			else Serial.write(' ');
-			if (marker&BIT3) Serial.write('r');
+			if (marker&FLAG_RIGHT) Serial.write('r');
 			else Serial.write(' ');
 		}
 		Serial.write('\n');
