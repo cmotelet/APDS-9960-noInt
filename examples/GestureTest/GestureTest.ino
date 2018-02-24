@@ -56,6 +56,9 @@ void loop()
 
 		if ( gesture )
 		{
+#if DEBUG
+			Serial.println("********************************");
+#endif
 			Serial.print("Detected gesture:");
 
 			if ( gesture&FLAG_UP )          Serial.print(" UP");
@@ -71,6 +74,9 @@ void loop()
 			else if ( gesture&FLAG_DEPART ) Serial.print(" DEPARTING");
 
 			Serial.println();
+#if DEBUG
+			Serial.println("********************************");
+#endif
 		}
 
 		blink(); delay(100); blink(); delay(100);
