@@ -1,4 +1,4 @@
-APDS-996 library found on http://www.stm32duino.com/viewtopic.php?f=3&t=2928 post by stevestrong  
+APDS-9960 library found on http://www.stm32duino.com/viewtopic.php?f=3&t=2928 post by stevestrong  
 Only works in polling mode (not used interrupt mode)  
 
 | Arduino Pin | APDS-9960 Board | Function |
