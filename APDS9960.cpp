@@ -392,11 +392,11 @@ gesture_record_t rec_data[MAX_RECORDS];
  *
  * @return Number corresponding to gesture. -1 on error.
  */
-int APDS9960::readGesture()
+int16_t APDS9960::readGesture()
 {
     /* Make sure that power and gesture is on and data is valid */
     if( !isGestureAvailable() || !(getMode() & 0b01000001) ) {
-        return 0;
+        return FLAG_NONE;
     }
 
     // Keep looping as long as gesture data is valid
@@ -405,7 +405,7 @@ int APDS9960::readGesture()
 		uint8_t gstatus;
         /* Get the contents of the STATUS register. Is data still valid? */
         if( !wireReadDataByte(APDS9960_GSTATUS, gstatus) ) {
-            return ERROR;
+            return FLAG_ERROR;
         }
 
         // If we have valid data, read in FIFO
@@ -414,7 +414,7 @@ int APDS9960::readGesture()
             // Read the current FIFO level
 			uint8_t fifo_level;
             if( !wireReadDataByte(APDS9960_GFLVL, fifo_level) ) {
-                return ERROR;
+                return FLAG_ERROR;
             }
 #if DEBUG
             Serial.print("> FIFO Level: "); Serial.println(fifo_level);
@@ -431,7 +431,7 @@ int APDS9960::readGesture()
 #if DEBUG
             Serial.print("Bytes read: "); Serial.println(bytes_read);
 #endif
-			if ( bytes_read<0 )	return ERROR; // something went wrong
+			if ( bytes_read<0 )	return FLAG_ERROR; // something went wrong
 
             if ( bytes_read<4 ) continue; // not enough data to process
 
@@ -479,8 +479,7 @@ int APDS9960::readGesture()
 	}
 	// Determine best guessed gesture and clean up
 	decodeGesture();
-	//int motion = gesture_motion_;
-	int motion = gesture_motion_;
+	int16_t motion = gesture_motion_;
 	resetGestureParameters();
 	return motion;
 }
@@ -670,7 +669,7 @@ void APDS9960::resetGestureParameters()
 //    gesture_far_count_ = 0;
 
 //    gesture_state_ = 0;
-    gesture_motion_ = 0;
+    gesture_motion_ = FLAG_NONE;
 }
 
 /**
@@ -694,14 +693,20 @@ bool APDS9960::processGestureData()
 			gesture_data_.dir_up += delta_ud;
 			if ( !(gesture_motion_&(FLAG_UP|FLAG_DOWN)) &&
 				gesture_data_.dir_up>THRESHOLD_MIN && gesture_data_.dir_down>THRESHOLD_MIN )
+			{
 				gesture_motion_ |= FLAG_DOWN;
+				Serial.print("FLAG_DOWN Set at count:");Serial.println((gesture_data_.total_records -gesture_data_.current_records +i),DEC);
+			}
 		}
 		else if ( delta_ud<=(-DELTA_MIN) )
 		{
 			gesture_data_.dir_down += -delta_ud;
 			if ( !(gesture_motion_&(FLAG_UP|FLAG_DOWN)) &&
 				gesture_data_.dir_up>THRESHOLD_MIN && gesture_data_.dir_down>THRESHOLD_MIN )
+			{
 				gesture_motion_ |= FLAG_UP;
+				Serial.print("FLAG_UP Set at count:");Serial.println((gesture_data_.total_records -gesture_data_.current_records +i),DEC);
+			}
 		}
 
 		int16_t delta_lr = (fifo_buf[i].l_data - fifo_buf[i].r_data);
@@ -712,14 +717,20 @@ bool APDS9960::processGestureData()
 			gesture_data_.dir_left += delta_lr;
 			if ( !(gesture_motion_&(FLAG_LEFT|FLAG_RIGHT)) && 
 				gesture_data_.dir_left>THRESHOLD_MIN && gesture_data_.dir_right>THRESHOLD_MIN )
+			{
 				gesture_motion_ |= FLAG_RIGHT;
+				Serial.print("FLAG_RIGHT Set at count:");Serial.println((gesture_data_.total_records -gesture_data_.current_records +i),DEC);
+			}
 		}
 		else if ( delta_lr<(-DELTA_MIN) )
 		{
 			gesture_data_.dir_right += -delta_lr;
 			if ( !(gesture_motion_&(FLAG_LEFT|FLAG_RIGHT)) && 
 				gesture_data_.dir_left>THRESHOLD_MIN && gesture_data_.dir_right>THRESHOLD_MIN )
+			{
 				gesture_motion_ |= FLAG_LEFT;
+				Serial.print("FLAG_LEFT Set at count:");Serial.println((gesture_data_.total_records -gesture_data_.current_records +i),DEC);
+			}
 		}
 		// collect NEAR/FAR data
 		// discard very first sample
@@ -822,7 +833,14 @@ void APDS9960::decodeGesture()
 		}
 		Serial.write('\n');
 	}
-    Serial.println("-----------------------------------------------------------------");
+	Serial.print("----");
+	for (uint8_t i=0; i<gesture_data_.total_records; i++)
+	{
+		Serial.print(i,DEC);
+		if (i<10) Serial.print(' ');
+		Serial.print("  ");
+	}
+	Serial.println();
 #endif
 }
 
@@ -1313,6 +1331,202 @@ bool APDS9960::setGestureExitThresh(uint8_t threshold)
 }
 
 /**
+ * @brief Gets the Gesture UP Offset Register
+ *
+ * FIELD VALUE Offset Correction Factor
+ * 01111111				 127
+ *      ...				 ...
+ * 00000001				   1
+ * 00000000				   0 
+ * 10000001				  -1 
+ *      ...				 ...
+ * 11111111				-127
+ * @return Current Gesture UP Offset Register.
+ */
+uint8_t APDS9960::getGestureUpOffset()
+{
+    uint8_t val;
+
+    /* Read value from Gesture UP Offset register */
+    if( !wireReadDataByte(APDS9960_GOFFSET_U, val) ) {
+        val = 0;
+    }
+
+    return val;
+}
+
+/**
+ * @brief Sets the Gesture UP Offset Register
+ *
+ * FIELD VALUE Offset Correction Factor
+ * 01111111				 127
+ *      ...				 ...
+ * 00000001				   1
+ * 00000000				   0 
+ * 10000001				  -1 
+ *      ...				 ...
+ * 11111111				-127
+ *
+ * @param[in] Gesture UP Offset Register
+ * @return True if operation successful. False otherwise.
+ */
+bool APDS9960::setGestureUpOffset(uint8_t offset)
+{
+    if( !wireWriteDataByte(APDS9960_GOFFSET_U, offset) ) {
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * @brief Gets the Gesture DOWN Offset Register
+ *
+ * FIELD VALUE Offset Correction Factor
+ * 01111111				 127
+ *      ...				 ...
+ * 00000001				   1
+ * 00000000				   0 
+ * 10000001				  -1 
+ *      ...				 ...
+ * 11111111				-127
+ * @return Current Gesture DOWN Offset Register.
+ */
+uint8_t APDS9960::getGestureDownOffset()
+{
+    uint8_t val;
+
+    /* Read value from Gesture DOWN Offset register */
+    if( !wireReadDataByte(APDS9960_GOFFSET_D, val) ) {
+        val = 0;
+    }
+
+    return val;
+}
+
+/**
+ * @brief Sets the Gesture DOWN Offset Register
+ *
+ * FIELD VALUE Offset Correction Factor
+ * 01111111				 127
+ *      ...				 ...
+ * 00000001				   1
+ * 00000000				   0 
+ * 10000001				  -1 
+ *      ...				 ...
+ * 11111111				-127
+ *
+ * @param[in] Gesture DOWN Offset Register
+ * @return True if operation successful. False otherwise.
+ */
+bool APDS9960::setGestureDownOffset(uint8_t offset)
+{
+    if( !wireWriteDataByte(APDS9960_GOFFSET_D, offset) ) {
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * @brief Gets the Gesture LEFT Offset Register
+ *
+ * FIELD VALUE Offset Correction Factor
+ * 01111111				 127
+ *      ...				 ...
+ * 00000001				   1
+ * 00000000				   0 
+ * 10000001				  -1 
+ *      ...				 ...
+ * 11111111				-127
+ * @return Current Gesture LEFT Offset Register.
+ */
+uint8_t APDS9960::getGestureLeftOffset()
+{
+    uint8_t val;
+
+    /* Read value from Gesture LEFT Offset register */
+    if( !wireReadDataByte(APDS9960_GOFFSET_L, val) ) {
+        val = 0;
+    }
+
+    return val;
+}
+
+/**
+ * @brief Sets the Gesture LEFT Offset Register
+ *
+ * FIELD VALUE Offset Correction Factor
+ * 01111111				 127
+ *      ...				 ...
+ * 00000001				   1
+ * 00000000				   0 
+ * 10000001				  -1 
+ *      ...				 ...
+ * 11111111				-127
+ *
+ * @param[in] Gesture LEFT Offset Register
+ * @return True if operation successful. False otherwise.
+ */
+bool APDS9960::setGestureLeftOffset(uint8_t offset)
+{
+    if( !wireWriteDataByte(APDS9960_GOFFSET_L, offset) ) {
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * @brief Gets the Gesture RIGHT Offset Register
+ *
+ * FIELD VALUE Offset Correction Factor
+ * 01111111				 127
+ *      ...				 ...
+ * 00000001				   1
+ * 00000000				   0 
+ * 10000001				  -1 
+ *      ...				 ...
+ * 11111111				-127
+ * @return Current Gesture RIGHT Offset Register.
+ */
+uint8_t APDS9960::getGestureRightOffset()
+{
+    uint8_t val;
+
+    /* Read value from Gesture RIGHT Offset register */
+    if( !wireReadDataByte(APDS9960_GOFFSET_R, val) ) {
+        val = 0;
+    }
+
+    return val;
+}
+
+/**
+ * @brief Sets the Gesture RIGHT Offset Register
+ *
+ * FIELD VALUE Offset Correction Factor
+ * 01111111				 127
+ *      ...				 ...
+ * 00000001				   1
+ * 00000000				   0 
+ * 10000001				  -1 
+ *      ...				 ...
+ * 11111111				-127
+ *
+ * @param[in] Gesture RIGHT Offset Register
+ * @return True if operation successful. False otherwise.
+ */
+bool APDS9960::setGestureRightOffset(uint8_t offset)
+{
+    if( !wireWriteDataByte(APDS9960_GOFFSET_R, offset) ) {
+        return false;
+    }
+
+    return true;
+}
+
+/**
  * @brief Gets the gain of the photodiode during gesture mode
  *
  * Value    Gain
@@ -1428,6 +1642,126 @@ bool APDS9960::setGestureLEDDrive(uint8_t drive)
 
     /* Write register value back into GCONF2 register */
     if( !wireWriteDataByte(APDS9960_GCONF2, val) ) {
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * @brief Gets GPLEN
+ *
+ * Value    GPLEN
+ *   0          4 us
+ *   1          8 us
+ *   2         16 us
+ *   3         32 us
+ *
+ * @return the GPLEN current value. 0xFF on error.
+ */
+uint8_t APDS9960::getGestureGPLEN()
+{
+    uint8_t val;
+
+    /* Read value from GPULSE register */
+    if( !wireReadDataByte(APDS9960_GPULSE, val) ) {
+        return ERROR;
+    }
+
+    /* Shift and mask out GPLEN bits */
+    val = (val >> 6) & 0b00000011;
+
+    return val;
+}
+
+/**
+ * @brief Sets GPLEN
+ *
+ * Value    GPLEN
+ *   0          4 us
+ *   1          8 us
+ *   2         16 us
+ *   3         32 us
+ *
+ * @param[in] the value for the GPLEN
+ * @return True if operation successful. False otherwise.
+ */
+bool APDS9960::setGestureGPLEN(uint8_t gplen)
+{
+    uint8_t val;
+
+    /* Read value from GPULSE register */
+    if( !wireReadDataByte(APDS9960_GPULSE, val) ) {
+        return false;
+    }
+
+    /* Set bits in register to given value */
+    gplen &= 0b00000011;
+    gplen = gplen << 6;
+    val &= 0b00111111;	
+    val |= gplen;
+
+    /* Write register value back into GPULSE register */
+    if( !wireWriteDataByte(APDS9960_GPULSE, val) ) {
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * @brief Gets GPULSE
+ *
+ * Value    GPULSE
+ *   0          1
+ * ...        ...
+ *  63         64
+ *
+ * @return the GPULSE current value. 0xFF on error.
+ */
+uint8_t APDS9960::getGestureGPULSE()
+{
+    uint8_t val;
+
+    /* Read value from GPULSE register */
+    if( !wireReadDataByte(APDS9960_GPULSE, val) ) {
+        return ERROR;
+    }
+
+    /* Shift and mask out GPULSE bits */
+    val &= 0b00111111;
+
+    return val;
+}
+
+/**
+ * @brief Sets GPULSE
+ *
+ * Value    GPLEN
+ * Value    GPULSE
+ *   0          1
+ * ...        ...
+ *  63         64
+ *
+ * @param[in] the value for the GPULSE
+ * @return True if operation successful. False otherwise.
+ */
+bool APDS9960::setGestureGPULSE(uint8_t gpulse)
+{
+    uint8_t val;
+
+    /* Read value from GPULSE register */
+    if( !wireReadDataByte(APDS9960_GPULSE, val) ) {
+        return false;
+    }
+
+    /* Set bits in register to given value */
+    gpulse &= 0b00111111;
+    val &= 0b11000000;	
+    val |= gpulse;
+
+    /* Write register value back into GPULSE register */
+    if( !wireWriteDataByte(APDS9960_GPULSE, val) ) {
         return false;
     }
 

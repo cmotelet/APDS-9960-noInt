@@ -12,6 +12,8 @@ IMPORTANT: The APDS-9960 can only accept 3.3V!
 APDS9960 apds;
 int incomingByte = 0;   // for incoming serial data
 uint8_t gesture_param_value;
+int8_t * p_tmp_val;
+
 //-----------------------------------------------------------------------------
 void blink()
 {
@@ -33,6 +35,26 @@ void print_gesture_config()
  Serial.println(apds.getGestureEnterThresh(),DEC);
  Serial.print("y+/h- GEXTH:");
  Serial.println(apds.getGestureExitThresh(),DEC);
+ Serial.print("u+/j- GPLEN:");
+ Serial.println(apds.getGestureGPLEN(),DEC);
+ Serial.print("i+/k- GPULSE:");
+ Serial.println(apds.getGestureGPULSE(),DEC);
+ Serial.print("7+/4- UpOffset:");
+ gesture_param_value = apds.getGestureUpOffset();
+ p_tmp_val = (int8_t *) &gesture_param_value;
+ Serial.println(*p_tmp_val,DEC);
+ Serial.print("8+/5- DownOffset:");
+ gesture_param_value = apds.getGestureDownOffset();
+ p_tmp_val = (int8_t *) &gesture_param_value;
+ Serial.println(*p_tmp_val,DEC);
+ Serial.print("9+/6- LeftOffset:");
+ gesture_param_value = apds.getGestureLeftOffset();
+ p_tmp_val = (int8_t *) &gesture_param_value;
+ Serial.println(*p_tmp_val,DEC);
+ Serial.print("2+/0- RightOffset:");
+ gesture_param_value = apds.getGestureRightOffset();
+ p_tmp_val = (int8_t *) &gesture_param_value;
+ Serial.println(*p_tmp_val,DEC);
 // Serial.print("z+/s- :");
 // Serial.println(apds.(),DEC);
  Serial.println("--------------------------------");
@@ -74,9 +96,10 @@ void loop()
 {
     if ( apds.isGestureAvailable() )
 	{
-		uint8_t gesture = apds.readGesture();
+		int16_t gesture = apds.readGesture();
 
-		if ( gesture )
+		digitalWrite(LED_BUILTIN, HIGH);
+		if ( gesture > 0)
 		{
 #if DEBUG
 			Serial.println("********************************");
@@ -99,9 +122,13 @@ void loop()
 #if DEBUG
 			Serial.println("********************************");
 #endif
+		} else {
+			if ( gesture == 0 )          Serial.println(" NONE");
+			else Serial.println(" ERROR");
 		}
-
-		blink(); delay(100); blink(); delay(100);
+		
+		digitalWrite(LED_BUILTIN, LOW);
+		//blink(); delay(100); blink(); delay(100);
 	}
 	
 	if (Serial.available() > 0) {
@@ -317,6 +344,110 @@ void loop()
 				{
 					print_gesture_config();
 				} else Serial.println("setGestureExitThresh: failure !");
+				break;
+			case 'u': // GPLEN +
+				gesture_param_value = apds.getGestureGPLEN();
+				if (gesture_param_value < 3) gesture_param_value++;
+				if (apds.setGestureGPLEN(gesture_param_value))
+				{
+					print_gesture_config();
+				} else Serial.println("setGestureGPLEN: failure !");
+				break;
+			case 'j': // GPLEN -
+				gesture_param_value = apds.getGestureGPLEN();
+				if (gesture_param_value > 0) gesture_param_value--;
+				if (apds.setGestureGPLEN(gesture_param_value))
+				{
+					print_gesture_config();
+				} else Serial.println("setGestureGPLEN: failure !");
+				break;
+			case 'i': // GPULSE +
+				gesture_param_value = apds.getGestureGPULSE();
+				if (gesture_param_value < 63) gesture_param_value++;
+				if (apds.setGestureGPULSE(gesture_param_value))
+				{
+					print_gesture_config();
+				} else Serial.println("setGestureGPULSE: failure !");
+				break;
+			case 'k': // GPULSE -
+				gesture_param_value = apds.getGestureGPULSE();
+				if (gesture_param_value > 0) gesture_param_value--;
+				if (apds.setGestureGPULSE(gesture_param_value))
+				{
+					print_gesture_config();
+				} else Serial.println("setGestureGPULSE: failure !");
+				break;
+			case '7': // UpOffset +
+				gesture_param_value = apds.getGestureUpOffset();
+				p_tmp_val = (int8_t *)&gesture_param_value;
+				if (*p_tmp_val < 127) (*p_tmp_val)++;
+				if (apds.setGestureUpOffset(gesture_param_value))
+				{
+					print_gesture_config();
+				} else Serial.println("setGestureUpOffset: failure !");
+				break;
+			case '4': // UpOffset -
+				gesture_param_value = apds.getGestureUpOffset();
+				p_tmp_val = (int8_t *)&gesture_param_value;
+				if (*p_tmp_val > -127) (*p_tmp_val)--;
+				if (apds.setGestureUpOffset(gesture_param_value))
+				{
+					print_gesture_config();
+				} else Serial.println("setGestureUpOffset: failure !");
+				break;
+			case '8': // DownOffset +
+				gesture_param_value = apds.getGestureDownOffset();
+				p_tmp_val = (int8_t *)&gesture_param_value;
+				if (*p_tmp_val < 127) (*p_tmp_val)++;
+				if (apds.setGestureDownOffset(gesture_param_value))
+				{
+					print_gesture_config();
+				} else Serial.println("setGestureDownOffset: failure !");
+				break;
+			case '5': // DownOffset -
+				gesture_param_value = apds.getGestureDownOffset();
+				p_tmp_val = (int8_t *)&gesture_param_value;
+				if (*p_tmp_val > -127) (*p_tmp_val)--;
+				if (apds.setGestureDownOffset(gesture_param_value))
+				{
+					print_gesture_config();
+				} else Serial.println("setGestureDownOffset: failure !");
+				break;
+			case '9': // LeftOffset +
+				gesture_param_value = apds.getGestureLeftOffset();
+				p_tmp_val = (int8_t *)&gesture_param_value;
+				if (*p_tmp_val < 127) (*p_tmp_val)++;
+				if (apds.setGestureLeftOffset(gesture_param_value))
+				{
+					print_gesture_config();
+				} else Serial.println("setGestureLeftOffset: failure !");
+				break;
+			case '6': // LeftOffset -
+				gesture_param_value = apds.getGestureLeftOffset();
+				p_tmp_val = (int8_t *)&gesture_param_value;
+				if (*p_tmp_val > -127) (*p_tmp_val)--;
+				if (apds.setGestureLeftOffset(gesture_param_value))
+				{
+					print_gesture_config();
+				} else Serial.println("setGestureLeftOffset: failure !");
+				break;
+			case '2': // RightOffset +
+				gesture_param_value = apds.getGestureRightOffset();
+				p_tmp_val = (int8_t *)&gesture_param_value;
+				if (*p_tmp_val < 127) (*p_tmp_val)++;
+				if (apds.setGestureRightOffset(gesture_param_value))
+				{
+					print_gesture_config();
+				} else Serial.println("setGestureRightOffset: failure !");
+				break;
+			case '0': // RightOffset -
+				gesture_param_value = apds.getGestureRightOffset();
+				p_tmp_val = (int8_t *)&gesture_param_value;
+				if (*p_tmp_val > -127) (*p_tmp_val)--;
+				if (apds.setGestureRightOffset(gesture_param_value))
+				{
+					print_gesture_config();
+				} else Serial.println("setGestureRightOffset: failure !");
 				break;
 			case '?':
 				print_gesture_config();

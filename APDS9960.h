@@ -13,7 +13,7 @@
 #include <Wire.h>
 
 // Debug
-#define DEBUG                   0
+#define DEBUG                   1
 
 // APDS-9960 I2C address
 #define APDS9960_I2C_ADDR       0x39
@@ -43,10 +43,12 @@ typedef struct gesture_data_type
     uint8_t total_records;
 } gesture_data_type;
 
-#define MAX_RECORDS 80
+#define MAX_RECORDS 40
 #define DELTA_MIN 7
 #define THRESHOLD_MIN 70
 
+#define FLAG_ERROR	  0xFFFF
+#define FLAG_NONE	  0x00
 #define FLAG_UP       0x01
 #define FLAG_DOWN     0x02
 #define FLAG_LEFT     0x04
@@ -55,6 +57,7 @@ typedef struct gesture_data_type
 #define FLAG_NEAR     0x20
 #define FLAG_APPROACH 0x40
 #define FLAG_DEPART   0x80
+
 
 /* Error code for returned values */
 #define ERROR                   0xFF
@@ -199,8 +202,8 @@ typedef struct gesture_data_type
 #define DEFAULT_PERS            0x11    // 2 consecutive prox or ALS for int.
 #define DEFAULT_CONFIG2         0x01    // No saturation interrupts or LED boost  
 #define DEFAULT_CONFIG3         0       // Enable all photodiodes, no SAI
-#define DEFAULT_GPENTH          38      // Threshold for entering gesture mode
-#define DEFAULT_GEXTH           20      // Threshold for exiting gesture mode    
+#define DEFAULT_GPENTH          40      // Threshold for entering gesture mode (38)
+#define DEFAULT_GEXTH           30      // Threshold for exiting gesture mode (20   )
 #define DEFAULT_GCONF1          0x40    // 4 gesture events for int., 1 for exit
 #define DEFAULT_GGAIN           GGAIN_1X	// GGAIN_4X not working
 #define DEFAULT_GLDRIVE         LED_DRIVE_100MA
@@ -271,6 +274,22 @@ public:
     bool setGestureEnterThresh(uint8_t threshold);
     uint8_t getGestureExitThresh();
     bool setGestureExitThresh(uint8_t threshold);
+	
+	// Gesture Pulse Count and Length Register (0xA6)
+	uint8_t getGestureGPLEN();
+	bool setGestureGPLEN(uint8_t gplen);
+	uint8_t getGestureGPULSE();
+	bool setGestureGPULSE(uint8_t gpulse);
+	
+	// Get and set gesture UP/DOWN/LEFT/RIGHT Offset Register
+	uint8_t getGestureUpOffset();
+	bool setGestureUpOffset(uint8_t offset);
+	uint8_t getGestureDownOffset();
+	bool setGestureDownOffset(uint8_t offset);
+	uint8_t getGestureLeftOffset();
+	bool setGestureLeftOffset(uint8_t offset);
+	uint8_t getGestureRightOffset();
+	bool setGestureRightOffset(uint8_t offset);
     
     // Get and set interrupt enables
     uint8_t getAmbientLightIntEnable();
@@ -295,7 +314,7 @@ public:
     
     // Gesture methods
     bool isGestureAvailable();
-    int readGesture();
+    int16_t readGesture();
     
 private:
     // Gesture processing
@@ -328,7 +347,7 @@ private:
 
     // Variables
     gesture_data_type gesture_data_;
-    int gesture_motion_;
+    int16_t gesture_motion_;
 };
 
 #endif
