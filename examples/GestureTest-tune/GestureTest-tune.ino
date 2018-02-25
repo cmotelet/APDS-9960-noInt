@@ -21,14 +21,20 @@ void blink()
 void print_gesture_config()
 {
  Serial.println("--------------------------------");
- Serial.printl("a+/q- GGAIN:");
- Serial.println(apds.getGestureGain(),HEX);
- Serial.printl("z+/s- GLDRIVE:");
- Serial.println(apds.getGestureLEDDrive(),HEX);
- Serial.printl("e+/d- LED_BOOST:");
- Serial.println(apds.getLEDBoost(),HEX);
-// Serial.printl("z+/s- :");
-// Serial.println(apds.(),HEX);
+ Serial.print("a+/q- GGAIN:");
+ Serial.println(apds.getGestureGain(),DEC);
+ Serial.print("z+/s- GLDRIVE:");
+ Serial.println(apds.getGestureLEDDrive(),DEC);
+ Serial.print("e+/d- LED_BOOST:");
+ Serial.println(apds.getLEDBoost(),DEC);
+ Serial.print("r+/f- GWTIME:");
+ Serial.println(apds.getGestureWaitTime(),DEC);
+ Serial.print("t+/g- GPENTH:");
+ Serial.println(apds.getGestureEnterThresh(),DEC);
+ Serial.print("y+/h- GEXTH:");
+ Serial.println(apds.getGestureExitThresh(),DEC);
+// Serial.print("z+/s- :");
+// Serial.println(apds.(),DEC);
  Serial.println("--------------------------------");
  	
 }
@@ -116,6 +122,8 @@ void loop()
 						gesture_param_value = GGAIN_8X;
 						break;
 				}
+				//Serial.print("New GestureGain:");
+				//Serial.println(gesture_param_value, HEX);
 				if (apds.setGestureGain(gesture_param_value))
 				{
 					print_gesture_config();
@@ -216,7 +224,6 @@ void loop()
 					print_gesture_config();
 				} else Serial.println("setLEDBoost: failure !");
 				break;
-/*				
 			case 'r': // GWTIME +
 				gesture_param_value = apds.getGestureWaitTime();
 				switch (gesture_param_value)
@@ -279,7 +286,38 @@ void loop()
 					print_gesture_config();
 				} else Serial.println("setGestureWaitTime: failure !");
 				break;
-*/
+			case 't': // GPENTH +
+				gesture_param_value = apds.getGestureEnterThresh();
+				if (gesture_param_value < 255) gesture_param_value++;
+				if (apds.setGestureEnterThresh(gesture_param_value))
+				{
+					print_gesture_config();
+				} else Serial.println("setGestureEnterThresh: failure !");
+				break;
+			case 'g': // GPENTH -
+				gesture_param_value = apds.getGestureEnterThresh();
+				if (gesture_param_value > 0) gesture_param_value--;
+				if (apds.setGestureEnterThresh(gesture_param_value))
+				{
+					print_gesture_config();
+				} else Serial.println("setGestureEnterThresh: failure !");
+				break;
+			case 'y': // GEXTH +
+				gesture_param_value = apds.getGestureExitThresh();
+				if (gesture_param_value < 255) gesture_param_value++;
+				if (apds.setGestureExitThresh(gesture_param_value))
+				{
+					print_gesture_config();
+				} else Serial.println("setGestureExitThresh: failure !");
+				break;
+			case 'h': // GEXTH -
+				gesture_param_value = apds.getGestureExitThresh();
+				if (gesture_param_value > 0) gesture_param_value--;
+				if (apds.setGestureExitThresh(gesture_param_value))
+				{
+					print_gesture_config();
+				} else Serial.println("setGestureExitThresh: failure !");
+				break;
 			case '?':
 				print_gesture_config();
 				break;

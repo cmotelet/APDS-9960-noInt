@@ -293,15 +293,20 @@ bool APDS9960::enableGestureSensor(bool interrupts)
 {
     /* Enable gesture mode
        Set ENABLE to 0 (power off)
-       Set WTIME to 0xFF
+       Set WTIME to 0xFF ???
+	   Set APDS9960_GCONF2 to DEFAULT_GWTIME|DEFAULT_GLDRIVE|DEFAULT_GGAIN
+	   Set APDS9960_GPULSE to DEFAULT_GPULSE
        Set AUX to DEFAULT_GLED_BOOST
        Enable PON, WEN, PEN, GEN in ENABLE 
     */
     resetGestureParameters();
-    if( !wireWriteDataByte(APDS9960_WTIME, 0xFF) ) {
+//    if( !wireWriteDataByte(APDS9960_WTIME, 0xFF) ) {
+//        return false;
+//    }
+    if( !wireWriteDataByte(APDS9960_GCONF2, DEFAULT_GWTIME|DEFAULT_GLDRIVE|DEFAULT_GGAIN) ) {
         return false;
     }
-    if( !wireWriteDataByte(APDS9960_PPULSE, DEFAULT_GESTURE_PPULSE) ) {
+    if( !wireWriteDataByte(APDS9960_GPULSE, DEFAULT_GPULSE) ) {
         return false;
     }
     if( !setLEDBoost(DEFAULT_GLED_BOOST) ) {
@@ -1131,7 +1136,7 @@ bool APDS9960::setLEDBoost(uint8_t boost)
 
     return true;
 }    
-   
+
 /**
  * @brief Gets proximity gain compensation enable
  *

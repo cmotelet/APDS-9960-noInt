@@ -209,7 +209,7 @@ typedef struct gesture_data_type
 #define DEFAULT_GPULSE          0xC9    // 32us, 10 pulses
 #define DEFAULT_GCONF3          0       // All photodiodes active during gesture
 #define DEFAULT_GIEN            0       // Disable gesture interrupts
-#define DEFAULT_GLED_BOOST		LED_BOOST_150	// LED_BOOST_300 not working
+#define DEFAULT_GLED_BOOST		LED_BOOST_100	// LED_BOOST_300 not working
 /* APDS9960 Class */
 class APDS9960
 {
@@ -237,6 +237,10 @@ public:
     bool setLEDDrive(uint8_t drive);
     uint8_t getGestureLEDDrive();
     bool setGestureLEDDrive(uint8_t drive);
+
+    // LED Boost Control
+    uint8_t getLEDBoost();
+    bool setLEDBoost(uint8_t boost);
     
     // Gain control
     uint8_t getAmbientLightGain();
@@ -245,6 +249,10 @@ public:
     bool setProximityGain(uint8_t gain);
     uint8_t getGestureGain();
     bool setGestureGain(uint8_t gain);
+    
+    // Gesture LED, gain, and time control
+    uint8_t getGestureWaitTime();
+    bool setGestureWaitTime(uint8_t time);
     
     // Get and set light interrupt thresholds
     bool getLightIntLowThreshold(uint16_t &threshold);
@@ -257,6 +265,12 @@ public:
     bool setProximityIntLowThreshold(uint8_t threshold);
     bool getProximityIntHighThreshold(uint8_t &threshold);
     bool setProximityIntHighThreshold(uint8_t threshold);
+    
+    // Gesture threshold control
+    uint8_t getGestureEnterThresh();
+    bool setGestureEnterThresh(uint8_t threshold);
+    uint8_t getGestureExitThresh();
+    bool setGestureExitThresh(uint8_t threshold);
     
     // Get and set interrupt enables
     uint8_t getAmbientLightIntEnable();
@@ -295,25 +309,11 @@ private:
     uint8_t getProxIntHighThresh();
     bool setProxIntHighThresh(uint8_t threshold);
     
-    // LED Boost Control
-    uint8_t getLEDBoost();
-    bool setLEDBoost(uint8_t boost);
-    
     // Proximity photodiode select
     uint8_t getProxGainCompEnable();
     bool setProxGainCompEnable(uint8_t enable);
     uint8_t getProxPhotoMask();
     bool setProxPhotoMask(uint8_t mask);
-    
-    // Gesture threshold control
-    uint8_t getGestureEnterThresh();
-    bool setGestureEnterThresh(uint8_t threshold);
-    uint8_t getGestureExitThresh();
-    bool setGestureExitThresh(uint8_t threshold);
-    
-    // Gesture LED, gain, and time control
-    uint8_t getGestureWaitTime();
-    bool setGestureWaitTime(uint8_t time);
     
     // Gesture mode
     uint8_t getGestureMode();
