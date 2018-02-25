@@ -15,11 +15,6 @@ uint8_t gesture_param_value;
 int8_t * p_tmp_val;
 
 //-----------------------------------------------------------------------------
-void blink()
-{
-	digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
-}
-//-----------------------------------------------------------------------------
 void print_gesture_config()
 {
  Serial.println("--------------------------------");
@@ -87,6 +82,7 @@ void setup()
   // Start running the APDS-9960 gesture sensor engine
   if ( apds.enableGestureSensor(true) ) {
     Serial.println(F("Gesture sensor is now running"));
+    digitalWrite(LED_BUILTIN, LOW);
   } else {
     Serial.println(F("Something went wrong during gesture sensor init!"));
   }
@@ -123,12 +119,10 @@ void loop()
 			Serial.println("********************************");
 #endif
 		} else {
-			if ( gesture == 0 )          Serial.println(" NONE");
+			if ( gesture == 0 ) Serial.println(" NONE");
 			else Serial.println(" ERROR");
 		}
-		
 		digitalWrite(LED_BUILTIN, LOW);
-		//blink(); delay(100); blink(); delay(100);
 	}
 	
 	if (Serial.available() > 0) {
@@ -149,8 +143,6 @@ void loop()
 						gesture_param_value = GGAIN_8X;
 						break;
 				}
-				//Serial.print("New GestureGain:");
-				//Serial.println(gesture_param_value, HEX);
 				if (apds.setGestureGain(gesture_param_value))
 				{
 					print_gesture_config();

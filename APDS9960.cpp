@@ -695,7 +695,9 @@ bool APDS9960::processGestureData()
 				gesture_data_.dir_up>THRESHOLD_MIN && gesture_data_.dir_down>THRESHOLD_MIN )
 			{
 				gesture_motion_ |= FLAG_DOWN;
+#if DEBUG
 				Serial.print("FLAG_DOWN Set at count:");Serial.println((gesture_data_.total_records -gesture_data_.current_records +i),DEC);
+#endif
 			}
 		}
 		else if ( delta_ud<=(-DELTA_MIN) )
@@ -705,7 +707,9 @@ bool APDS9960::processGestureData()
 				gesture_data_.dir_up>THRESHOLD_MIN && gesture_data_.dir_down>THRESHOLD_MIN )
 			{
 				gesture_motion_ |= FLAG_UP;
+#if DEBUG
 				Serial.print("FLAG_UP Set at count:");Serial.println((gesture_data_.total_records -gesture_data_.current_records +i),DEC);
+#endif
 			}
 		}
 
@@ -719,7 +723,9 @@ bool APDS9960::processGestureData()
 				gesture_data_.dir_left>THRESHOLD_MIN && gesture_data_.dir_right>THRESHOLD_MIN )
 			{
 				gesture_motion_ |= FLAG_RIGHT;
+#if DEBUG
 				Serial.print("FLAG_RIGHT Set at count:");Serial.println((gesture_data_.total_records -gesture_data_.current_records +i),DEC);
+#endif
 			}
 		}
 		else if ( delta_lr<(-DELTA_MIN) )
@@ -729,7 +735,9 @@ bool APDS9960::processGestureData()
 				gesture_data_.dir_left>THRESHOLD_MIN && gesture_data_.dir_right>THRESHOLD_MIN )
 			{
 				gesture_motion_ |= FLAG_LEFT;
+#if DEBUG
 				Serial.print("FLAG_LEFT Set at count:");Serial.println((gesture_data_.total_records -gesture_data_.current_records +i),DEC);
+#endif
 			}
 		}
 		// collect NEAR/FAR data
